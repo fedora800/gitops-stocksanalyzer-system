@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dpl-frontend
+  namespace: ns-stocksanalyzer
+  labels:
+    pl-app: stocksanalyzer
+    pl-version: X.Y.1
+    pl-component: frontend
+    pl-env: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      pl-app: stocksanalyzer
+      pl-version: X.Y.1
+      pl-component: frontend
+      pl-env: prod
+  template:
+    metadata:
+      labels:
+        pl-app: stocksanalyzer
+        pl-version: X.Y.1
+        pl-component: frontend
+        pl-env: prod
+    spec:
+      containers:
+      - name: stocksanalyzer-frontend-app
+        image: fedora800/stocksanalyzer-frontend-app:1.0.63
+        ports:
+        - containerPort: 8501
+
