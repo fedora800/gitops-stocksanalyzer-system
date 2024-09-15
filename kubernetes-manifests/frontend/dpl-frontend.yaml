@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: stocksanalyzer-frontend-app
-        image: fedora800/stocksanalyzer-frontend-app:1.0.63
+        image: fedora800/stocksanalyzer-frontend-app:1.0.175
         ports:
         - containerPort: 8501
 
