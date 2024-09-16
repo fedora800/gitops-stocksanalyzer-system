@@ -21,6 +21,7 @@ pipeline {
     //APP_VERSION_PREFIX = "1.0"            // currently hardcoding till i find solution to maybe get from build config or somewhere else
     //APP_VERSION = "${APP_VERSION_PREFIX}.${env.BUILD_NUMBER}"      // Concatenate using Groovy string interpolation
 
+    K8S_NAMESPACE = 'default'
   }
     
   stages {
@@ -62,6 +63,30 @@ pipeline {
         }
       }
     }
+
+
+    stage('Connect to Kubernetes cluster using config file credentials and lookup resources') {
+      steps {
+        script {
+          // Wrap with the credentials block to use the kubeconfig from Jenkins credentials into Jenkins env variable
+          withCredentials([file(credentialsId: 'cred-kubernetes-config-file', variable: 'KUBECONFIG')]) {
+            // Optionally check the cluster details
+            sh 'kubectl config view'
+            // Run your kubectl commands, for example, deploying an application
+            sh 'kubectl get nodes'
+            // Example of deploying a YAML manifest
+            sh 'kubectl apply -f deployment.yaml'
+            // You can also run other kubectl commands as needed
+            sh 'kubectl get pods -n ${K8S_NAMESPACE}'
+          }
+        }
+      }
+    }
+
+
+
+
+
 
   } // end-stages
 
