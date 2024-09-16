@@ -13,15 +13,14 @@ pipeline {
     agent any
     
   environment {
-    APP_GITOPS_REPO_URL = 'https://github.com/your-username/gitops-stocksanalyzer-system.git' 
+    APP_GITOPS_REPO_NAME = "gitops-stocksanalyzer-system"
+    APP_GITOPS_REPO_URL = 'https://github.com/fedora800/gitops-stocksanalyzer-system.git' 
     APP_GITOPS_BRANCH = 'main'
-    //APP_GITOPS_CREDENTIALS_ID = 'cred-github-fedora800-PAT'
+    APP_GITOPS_CREDENTIALS_ID = 'cred-github-fedora800-PAT'
 
-    //APP_NAME = "stocksanalyzer-frontend-app"
-    //APP_VERSION_PREFIX = "1.0"            // currently hardcoding till i find solution to maybe get from build config or somewhere else
-    //APP_VERSION = "${APP_VERSION_PREFIX}.${env.BUILD_NUMBER}"      // Concatenate using Groovy string interpolation
-
-    K8S_NAMESPACE = 'default'
+    K8S_NAMESPACE = 'ns-stocksanalyzer'
+    K8S_DEPLOYMENT_FILE = 'kubernetes-manifests/frontend/dpl-frontend.yaml'
+    K8S_SERVICES_FILE = 'kubernetes-manifests/frontend/svc-frontend.yaml'
   }
     
   stages {
@@ -54,8 +53,9 @@ pipeline {
         script {
           try {
             // Pull code from a GitHub repository
-            //git branch: 'main', url: 'https://github.com/fedora800/scratch_project.git'
-            git branch: APP_GIT_REPO_BRANCH, credentialsId: APP_GIT_REPO_CREDENTIALS_ID, url: APP_GIT_REPO_URL
+            echo "Cloning repository ${APP_GITOPS_REPO_NAME} from branch ${APP_GITOPS_BRANCH}"
+            //git branch: APP_GITOPS_REPO_BRANCH, credentialsId: APP_GITOPS_REPO_CREDENTIALS_ID, url: APP_GITOPS_REPO_URL
+            git branch: 'main', url: 'https://github.com/fedora800/gitops-stocksanalyzer-system.git' 
           }
           catch (err) {
             echo err
@@ -67,22 +67,40 @@ pipeline {
 
     stage('Connect to Kubernetes cluster using config file credentials and lookup resources') {
       steps {
+        PrintStageName()
         script {
           // Wrap with the credentials block to use the kubeconfig from Jenkins credentials into Jenkins env variable
           withCredentials([file(credentialsId: 'cred-kubernetes-config-file', variable: 'KUBECONFIG')]) {
             // Optionally check the cluster details
             sh 'kubectl config view'
             // Run your kubectl commands, for example, deploying an application
-            sh 'kubectl get nodes'
+            sh 'kubectl get nodes -o wide'
             // Example of deploying a YAML manifest
-            sh 'kubectl apply -f deployment.yaml'
+            //sh 'kubectl apply -f deployment.yaml'
             // You can also run other kubectl commands as needed
-            sh 'kubectl get pods -n ${K8S_NAMESPACE}'
+            sh 'kubectl get pods -n ${K8S_NAMESPACE} -o wide'
           }
         }
       }
     }
 
+
+
+    stage('Connect to Kubernetes cluster using config file credentials and APPLY manifest changes') {
+      steps {
+        PrintStageName()
+        script {
+          // Wrap with the credentials block to use the kubeconfig from Jenkins credentials into Jenkins env variable
+          withCredentials([file(credentialsId: 'cred-kubernetes-config-file', variable: 'KUBECONFIG')]) {
+            sh 'kubectl apply -f $K8S_DEPLOYMENT_FILE'
+            sh 'kubectl apply -f $K8S_SERVICES_FILE'
+            sh 'echo Waiting for 10 seconds for resource to come up...; sleep 10'
+            sh 'kubectl -n ${K8S_NAMESPACE} get all --show-labels'
+
+          }
+        }
+      }
+    }
 
 
 
