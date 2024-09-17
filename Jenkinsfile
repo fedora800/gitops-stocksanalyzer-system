@@ -78,7 +78,7 @@ pipeline {
             // Example of deploying a YAML manifest
             //sh 'kubectl apply -f deployment.yaml'
             // You can also run other kubectl commands as needed
-            sh 'kubectl get pods -n ${K8S_NAMESPACE} -o wide'
+            sh 'kubectl get pods -n ${K8S_NAMESPACE} --show-labels -o wide'
           }
         }
       }
@@ -92,6 +92,10 @@ pipeline {
         script {
           // Wrap with the credentials block to use the kubeconfig from Jenkins credentials into Jenkins env variable
           withCredentials([file(credentialsId: 'cred-kubernetes-config-file', variable: 'KUBECONFIG')]) {
+            sh 'echo Deleting deployments and services of old version ...; sleep 5'
+            sh 'kubectl delete -f $K8S_DEPLOYMENT_FILE'
+            sh 'kubectl delete -f $K8S_SERVICES_FILE'
+            sh 'echo Applying deployments and services of new version ...; sleep 5'
             sh 'kubectl apply -f $K8S_DEPLOYMENT_FILE'
             sh 'kubectl apply -f $K8S_SERVICES_FILE'
             sh 'echo Waiting for 10 seconds for resource to come up...; sleep 10'
