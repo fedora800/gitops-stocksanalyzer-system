@@ -5,7 +5,7 @@ metadata:
   namespace: ns-stocksanalyzer
   labels:
     pl-app: stocksanalyzer
-    pl-version: 1.0.230
+    pl-version: 1.0.231
     pl-component: frontend
     pl-env: prod
 spec:
@@ -13,20 +13,20 @@ spec:
   selector:
     matchLabels:
       pl-app: stocksanalyzer
-      pl-version: 1.0.230
+      pl-version: 1.0.231
       pl-component: frontend
       pl-env: prod
   template:
     metadata:
       labels:
         pl-app: stocksanalyzer
-        pl-version: 1.0.230
+        pl-version: 1.0.231
         pl-component: frontend
         pl-env: prod
     spec:
       containers:
       - name: stocksanalyzer-frontend-app
-        image: fedora800/stocksanalyzer-frontend-app:1.0.230
+        image: fedora800/stocksanalyzer-frontend-app:1.0.231
         ports:
         #- containerPort: 8501
         - containerPort: 8000
