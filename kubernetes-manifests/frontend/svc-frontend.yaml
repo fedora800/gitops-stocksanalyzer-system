@@ -7,7 +7,7 @@ spec:
   type: ClusterIP
   selector:     
     pl-app: stocksanalyzer
-    pl-version: 1.0.296
+    pl-version: 1.0.297
     pl-component: frontend
     pl-env: prod
 
