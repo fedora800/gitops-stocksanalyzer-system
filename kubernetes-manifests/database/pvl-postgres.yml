@@ -9,9 +9,10 @@ spec:
   capacity:
     storage: 10Gi
   accessModes:
-    - ReadWriteOnce
-  local:
+    - ReadWriteMany
+  hostPath:
     path: /postgres-data
+    type: DirectoryOrCreate
   nodeAffinity:
     required:
       nodeSelectorTerms:

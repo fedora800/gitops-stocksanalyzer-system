@@ -3,9 +3,12 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-postgres
   namespace: ns-stocksanalyzer
+  labels:
+    pl-app: stocksanalyzer
+    pl-component: database
 spec:
   accessModes:
-    - ReadWriteOnce 
+    - ReadWriteMany 
   resources:
     requests:
       storage: 10Gi 
